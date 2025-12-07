@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+@theme {
+  /* Colors */
+  --color-midnight: #050511;
+  --color-surface: #0F1219;
+  --color-neon-green: #00FFA3;
+  --color-neon-blue: #00E5FF;
+  --color-neon-purple: #D946EF;
+  --color-neon-pink: #FF0099;
+  --color-glass: rgba(255, 255, 255, 0.05);
+  --color-glass-border: rgba(255, 255, 255, 0.1);
+  --color-glass-highlight: rgba(255, 255, 255, 0.15);
+
+  /* Fonts */
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Shadows */
+  --shadow-neon-green: 0 0 20px rgba(0, 255, 163, 0.4);
+  --shadow-neon-blue: 0 0 20px rgba(0, 229, 255, 0.4);
+  --shadow-neon-purple: 0 0 20px rgba(217, 70, 239, 0.4);
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+
+  /* Animations */
+  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-glow: glow 2s ease-in-out infinite alternate;
+
+  /* Keyframes */
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes glow {
+    0% {
+      box-shadow: 0 0 10px rgba(0, 255, 163, 0.2);
+    }
+
+    100% {
+      box-shadow: 0 0 20px rgba(0, 255, 163, 0.6), 0 0 10px rgba(0, 255, 163, 0.4);
+    }
+  }
+}
+
+@layer base {
+  body {
+    @apply font-sans overflow-x-hidden;
+    background-color: var(--color-midnight);
+    color: white;
+  }
+
+  ::selection {
+    background-color: rgba(0, 255, 163, 0.3);
+    color: var(--color-neon-green);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display font-bold tracking-tight;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply backdrop-blur-xl border rounded-2xl;
+    background-color: var(--color-glass);
+    border-color: var(--color-glass-border);
+    box-shadow: var(--shadow-glass);
+  }
+
+  .glass-button {
+    @apply px-6 py-3 rounded-xl font-bold transition-all duration-300 relative overflow-hidden;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+    @apply border;
+    border-color: var(--color-glass-border);
+  }
+
+  .glass-button:hover {
+    border-color: rgba(0, 255, 163, 0.5);
+    box-shadow: 0 0 20px rgba(0, 255, 163, 0.2);
+    color: var(--color-neon-green);
+  }
+
+  .neon-text-gradient {
+    @apply text-transparent bg-clip-text animate-pulse-slow;
+    background-image: linear-gradient(to right, var(--color-neon-green), var(--color-neon-blue), var(--color-neon-purple));
+  }
+
+  .btn-primary {
+    @apply px-8 py-3 rounded-xl font-bold transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden;
+    background: linear-gradient(135deg, #00FFA3 0%, #00E5FF 100%);
+    color: var(--color-midnight);
+    box-shadow: 0 0 20px rgba(0, 255, 163, 0.3);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 0 30px rgba(0, 255, 163, 0.5);
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 rounded-xl font-bold transition-all duration-300 relative overflow-hidden;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+    @apply border;
+    border-color: var(--color-glass-border);
+  }
+
+  .btn-secondary:hover {
+    border-color: rgba(0, 255, 163, 0.5);
+    box-shadow: 0 0 20px rgba(0, 255, 163, 0.2);
+    color: var(--color-neon-green);
+  }
+
+  .container-padding {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+}
