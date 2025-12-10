@@ -27,9 +27,11 @@ const Puzzles = () => {
         // Mock puzzle validation: check if move is mate (since Fen is setup for mate in 1)
         // In a real app, we check against a solution string/move
         if (move.san === solutionMove) {
+            // For puzzles starting from a specific FEN without history, we can initialize from FEN.
             const newGame = new Chess(game.fen());
             newGame.move(move.san);
             setGame(newGame);
+
             setStatus('success');
             setStreak(s => s + 1);
             return true;

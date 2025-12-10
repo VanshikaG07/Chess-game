@@ -23,10 +23,12 @@ export default function ChessGame() {
     }, []);
 
     // Core Move Logic from User's "Correct Version"
+    // Core Move Logic from User's "Correct Version"
     function makeAMove(move) {
-        const gameCopy = new Chess(game.fen());
-
         try {
+            const gameCopy = new Chess();
+            gameCopy.loadPgn(game.pgn()); // Preserve history
+
             const result = gameCopy.move(move);
             if (result) {
                 setGame(gameCopy);
@@ -35,6 +37,7 @@ export default function ChessGame() {
                 return result;
             }
         } catch (error) {
+            console.error(error); // Debugging
             return null;
         }
         return null;
@@ -53,7 +56,9 @@ export default function ChessGame() {
         setTimeout(() => {
             // Updated pattern to ensure we use latest state and don't overwrite if game changed
             setGame((currentGameState) => {
-                const computerGameCopy = new Chess(currentGameState.fen());
+                const computerGameCopy = new Chess();
+                computerGameCopy.loadPgn(currentGameState.pgn()); // Preserve history
+
                 const computerMoves = computerGameCopy.moves();
 
                 if (!computerGameCopy.isGameOver() && computerMoves.length > 0) {
