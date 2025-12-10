@@ -1,10 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Chessboard } from 'react-chessboard';
 import { Chess } from 'chess.js';
 import { RotateCcw } from 'lucide-react';
 
 export default function ChessGame() {
-    const [game, setGame] = useState(new Chess());
+    // USE REF: Keeps the game instance stable across renders.
+    // This mimics a Class Component's "this.game" behavior.
+    const game = useRef(new Chess());
+
+    // VISUAL STATE: Triggers re-renders when the board changes.
+    const [fen, setFen] = useState(game.current.fen());
     const [optionSquares, setOptionSquares] = useState({});
     const [boardWidth, setBoardWidth] = useState(500);
 
@@ -21,76 +26,60 @@ export default function ChessGame() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Safe Mutation Helper
-    const safeGameMutate = (modify) => {
-        setGame((g) => {
-            const update = new Chess();
-            update.loadPgn(g.pgn());
-            modify(update);
-            return update;
-        });
+    // Force Update Helper
+    const safeSetFen = () => {
+        setFen(game.current.fen());
     };
 
-    // Computer Move Logic - Separated for safety
+    // Computer Move Logic
     useEffect(() => {
-        let timeoutId;
-        if (game.turn() === 'b' && !game.isGameOver()) {
-            timeoutId = setTimeout(() => {
-                const possibleMoves = game.moves();
-                if (possibleMoves.length > 0) {
-                    const randomIndex = Math.floor(Math.random() * possibleMoves.length);
-                    safeGameMutate((g) => {
-                        g.move(possibleMoves[randomIndex]);
-                    });
-                }
-            }, 500); // 500ms delay for natural feel
-        }
+        if (game.current.isGameOver() || game.current.turn() === 'w') return;
+
+        const timeoutId = setTimeout(() => {
+            const possibleMoves = game.current.moves();
+            if (possibleMoves.length > 0) {
+                const randomIndex = Math.floor(Math.random() * possibleMoves.length);
+                game.current.move(possibleMoves[randomIndex]);
+                safeSetFen(); // Update UI
+            }
+        }, 500);
+
         return () => clearTimeout(timeoutId);
-    }, [game]); // Re-run when game state changes
+    }, [fen]); // Run whenever FEN changes (after user move)
 
     function onDrop(sourceSquare, targetSquare) {
-        let move = null;
-        safeGameMutate((g) => {
-            try {
-                move = g.move({
-                    from: sourceSquare,
-                    to: targetSquare,
-                    promotion: 'q',
-                });
-            } catch (error) {
-                // Invalid move
-                move = null;
-            }
-        });
-
-        // We need to return true/false synchronously for react-chessboard
-        // to know if the visual drop should theoretically succeed.
-        // We validate against a temporary state to give immediate feedback.
         try {
-            const tempGame = new Chess();
-            tempGame.loadPgn(game.pgn());
-            const result = tempGame.move({ from: sourceSquare, to: targetSquare, promotion: 'q' });
-            return result !== null;
-        } catch (e) {
+            const move = game.current.move({
+                from: sourceSquare,
+                to: targetSquare,
+                promotion: 'q',
+            });
+
+            if (move === null) return false;
+
+            safeSetFen(); // Update UI
+            return true;
+        } catch (error) {
             return false;
         }
     }
 
-    // Status helpers
-    const currentTurn = game.turn() === 'w' ? 'White' : 'Black';
-    const isCheckmate = game.isCheckmate();
-    const isDraw = game.isDraw();
-    const isCheck = game.isCheck();
+    function resetGame() {
+        game.current.reset();
+        safeSetFen();
+        setOptionSquares({});
+    }
+
+    // derived state for UI
+    const currentTurn = game.current.turn() === 'w' ? 'White' : 'Black';
+    const isCheckmate = game.current.isCheckmate();
+    const isDraw = game.current.isDraw();
+    const isCheck = game.current.isCheck();
 
     let status = `${currentTurn} to move`;
     if (isCheckmate) status = `Game over, ${currentTurn} is in checkmate.`;
     else if (isDraw) status = 'Game over, drawn position.';
     else if (isCheck) status = `${currentTurn} to move (Check!)`;
-
-    function resetGame() {
-        setGame(new Chess());
-        setOptionSquares({});
-    }
 
     return (
         <div className="flex flex-col xl:flex-row gap-8 items-start justify-center w-full max-w-7xl mx-auto px-4 py-8">
@@ -109,14 +98,14 @@ export default function ChessGame() {
                 >
                     <Chessboard
                         id="BasicBoard"
-                        position={game.fen()}
+                        position={fen}
                         onPieceDrop={onDrop}
                         boardWidth={boardWidth}
                         customDarkSquareStyle={{ backgroundColor: '#1e293b' }}
                         customLightSquareStyle={{ backgroundColor: '#334155' }}
                         customSquareStyles={optionSquares}
                         animationDuration={200}
-                        arePiecesDraggable={!game.isGameOver()}
+                        arePiecesDraggable={!game.current.isGameOver()}
                     />
                 </div>
             </div>
@@ -155,7 +144,7 @@ export default function ChessGame() {
                     <div className="bg-black/40 p-4 rounded-lg border border-white/5">
                         <p className="text-xs uppercase tracking-wider text-gray-500 mb-2">FEN</p>
                         <div className="font-mono text-xs text-gray-400 break-all leading-relaxed select-all">
-                            {game.fen()}
+                            {fen}
                         </div>
                     </div>
 
@@ -163,7 +152,7 @@ export default function ChessGame() {
                     <div className="bg-black/40 p-4 rounded-lg border border-white/5 flex flex-col h-48">
                         <p className="text-xs uppercase tracking-wider text-gray-500 mb-2">Move History</p>
                         <div className="flex-1 overflow-y-auto font-mono text-sm text-gray-300 leading-relaxed pr-2 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
-                            {game.pgn() || <span className="text-gray-600 italic">No moves yet.</span>}
+                            {game.current.pgn() || <span className="text-gray-600 italic">No moves yet.</span>}
                         </div>
                     </div>
 
