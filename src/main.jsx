@@ -7,7 +7,5 @@ import '@fontsource/inter/600.css';
 import '@fontsource/space-grotesk/700.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
     <App />
-  </React.StrictMode>,
 )

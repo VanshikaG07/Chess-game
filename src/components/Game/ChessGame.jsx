@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Chessboard } from 'react-chessboard';
+// import { Chessboard } from 'react-chessboard'; // BROKEN LIBRARY
+import SimpleChessboard from './SimpleChessboard';
 import { Chess } from 'chess.js';
 import { RotateCcw } from 'lucide-react';
 import Engine from './Engine';
@@ -7,12 +8,21 @@ import Engine from './Engine';
 export default function ChessGame({ difficulty = "Easy" }) {
     // USE REF: Keeps the game instance stable across renders.
     const game = useRef(new Chess());
-    const engine = useRef(new Engine());
+    
+    // FIX: Lazy init to avoid spawning workers on every render
+    const engine = useRef(null);
+    if (!engine.current) {
+        engine.current = new Engine();
+    }
 
     // VISUAL STATE: Triggers re-renders when the board changes.
     const [fen, setFen] = useState(game.current.fen());
+    const [moveCount, setMoveCount] = useState(0); // Force re-render key
     const [optionSquares, setOptionSquares] = useState({});
     const [boardWidth, setBoardWidth] = useState(500);
+    const [lastError, setLastError] = useState(null); // Debug state
+
+    const [moveFrom, setMoveFrom] = useState('');
 
     // Resize handler
     useEffect(() => {
@@ -45,7 +55,7 @@ export default function ChessGame({ difficulty = "Easy" }) {
                 const parts = message.split(" ");
                 const moveStr = parts[1]; // "e2e4" or "e7e8q"
 
-                if (moveStr) {
+                if (moveStr && moveStr !== "(none)") {
                     const from = moveStr.substring(0, 2);
                     const to = moveStr.substring(2, 4);
                     const promotion = moveStr.length > 4 ? moveStr.substring(4, 5) : undefined;
@@ -68,7 +78,10 @@ export default function ChessGame({ difficulty = "Easy" }) {
 
     // Force Update Helper
     const safeSetFen = () => {
-        setFen(game.current.fen());
+        const newFen = game.current.fen();
+        console.log("GAME: Updating FEN. Old:", fen, "New:", newFen);
+        setFen(newFen);
+        setMoveCount(c => c + 1);
     };
 
     // Computer Move Logic
@@ -94,7 +107,7 @@ export default function ChessGame({ difficulty = "Easy" }) {
 
     function onDrop(sourceSquare, targetSquare) {
         try {
-            console.log(`Attempting move: ${sourceSquare} -> ${targetSquare}`);
+            console.log(`GAME: User Attempting move: ${sourceSquare} -> ${targetSquare}`);
 
             const move = game.current.move({
                 from: sourceSquare,
@@ -103,14 +116,54 @@ export default function ChessGame({ difficulty = "Easy" }) {
             });
 
             if (move === null) {
+                console.warn("GAME: Illegal move attempted");
+                setLastError(`Invalid move: ${sourceSquare} to ${targetSquare}`);
                 return false;
             }
 
+            console.log("GAME: Move successful. New FEN:", game.current.fen());
+            setLastError(null);
             safeSetFen(); // Update UI
             return true;
         } catch (error) {
             console.error("Move Error:", error);
+            setLastError(`Move Error: ${error.message}`);
             return false;
+        }
+    }
+
+    function onSquareClick(square) {
+        // Only allow if it's white's turn and game isn't over
+        if (game.current.turn() !== 'w' || game.current.isGameOver()) return;
+
+        if (!moveFrom) {
+            // Clicked a square to start move
+            const piece = game.current.get(square);
+            if (piece && piece.color === 'w') {
+                setMoveFrom(square);
+                setOptionSquares({
+                    [square]: { background: 'rgba(0, 255, 163, 0.4)' }
+                });
+            }
+        } else {
+            // Clicked a target square
+            const move = onDrop(moveFrom, square);
+            
+            if (!move) {
+                // If invalid move (e.g. clicked another white piece), select that instead
+                const piece = game.current.get(square);
+                if (piece && piece.color === 'w') {
+                    setMoveFrom(square);
+                    setOptionSquares({
+                        [square]: { background: 'rgba(0, 255, 163, 0.4)' }
+                    });
+                    return;
+                }
+            }
+            
+            // Cleanup selection
+            setMoveFrom('');
+            setOptionSquares({});
         }
     }
 
@@ -119,6 +172,7 @@ export default function ChessGame({ difficulty = "Easy" }) {
             game.current.reset();
             safeSetFen();
             setOptionSquares({});
+            setMoveFrom('');
             engine.current.stop(); // Stop any thinking
         } catch (error) {
             console.error("Reset Error:", error);
@@ -135,6 +189,12 @@ export default function ChessGame({ difficulty = "Easy" }) {
     if (isCheckmate) status = `Game over, ${currentTurn} is in checkmate.`;
     else if (isDraw) status = 'Game over, drawn position.';
     else if (isCheck) status = `${currentTurn} to move (Check!)`;
+    
+    if (game.current.turn() === 'b' && !game.current.isGameOver()) {
+        status = "AI is thinking...";
+    }
+
+    console.log(`GAME: RENDER. MoveCount: ${moveCount}, FEN: ${fen}`);
 
     return (
         <div className="flex flex-col xl:flex-row gap-8 items-start justify-center w-full max-w-7xl mx-auto px-4 py-8">
@@ -151,16 +211,10 @@ export default function ChessGame({ difficulty = "Easy" }) {
                         border: '1px solid rgba(255, 255, 255, 0.1)'
                     }}
                 >
-                    <Chessboard
-                        id="BasicBoard"
+                    <SimpleChessboard
                         position={fen}
-                        onPieceDrop={onDrop}
+                        onSquareClick={onSquareClick}
                         boardWidth={boardWidth}
-                        customDarkSquareStyle={{ backgroundColor: '#1e293b' }}
-                        customLightSquareStyle={{ backgroundColor: '#334155' }}
-                        customSquareStyles={optionSquares}
-                        animationDuration={200}
-                        arePiecesDraggable={!game.current.isGameOver()}
                     />
                 </div>
             </div>
@@ -176,13 +230,15 @@ export default function ChessGame({ difficulty = "Easy" }) {
             >
                 <div className="flex justify-between items-center pb-4 border-b border-white/10">
                     <h2 className="text-2xl font-bold text-white tracking-tight">Chess Game</h2>
-                    <button
-                        onClick={resetGame}
-                        className="p-3 rounded-lg transition-all hover:bg-neon-green/10 hover:text-neon-green group"
-                        title="Reset Game"
-                    >
-                        <RotateCcw className="w-5 h-5 text-gray-400 group-hover:text-neon-green" />
-                    </button>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={resetGame}
+                            className="p-3 rounded-lg transition-all hover:bg-neon-green/10 hover:text-neon-green group"
+                            title="Reset Game"
+                        >
+                            <RotateCcw className="w-5 h-5 text-gray-400 group-hover:text-neon-green" />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Status Section */}
@@ -226,6 +282,8 @@ export default function ChessGame({ difficulty = "Easy" }) {
                             • Depth: {difficulty === "Easy" ? 2 : difficulty === "Medium" ? 8 : difficulty === "Hard" ? 15 : 20}
                         </p>
                     </div>
+
+
                 </div>
             </div>
         </div>
