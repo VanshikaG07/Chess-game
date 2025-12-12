@@ -24,6 +24,7 @@ export default function ChessGame({ difficulty = "Easy" }) {
 
     const [moveFrom, setMoveFrom] = useState('');
     const [isFenCollapsed, setIsFenCollapsed] = useState(true);
+    const [gameMode, setGameMode] = useState('ai'); // 'ai' or 'friend'
 
     // Resize handler
     useEffect(() => {
@@ -87,6 +88,7 @@ export default function ChessGame({ difficulty = "Easy" }) {
 
     // Computer Move Logic
     useEffect(() => {
+        if (gameMode !== 'ai') return; // Exit if not AI mode
         if (game.current.isGameOver() || game.current.turn() === 'w') return;
 
         // Define difficulty map again for the "go" command
@@ -104,7 +106,7 @@ export default function ChessGame({ difficulty = "Easy" }) {
         }, 500);
 
         return () => clearTimeout(timeoutId);
-    }, [fen, difficulty]);
+    }, [fen, difficulty, gameMode]);
 
     function onDrop(sourceSquare, targetSquare) {
         try {
@@ -134,13 +136,18 @@ export default function ChessGame({ difficulty = "Easy" }) {
     }
 
     function onSquareClick(square) {
-        // Only allow if it's white's turn and game isn't over
-        if (game.current.turn() !== 'w' || game.current.isGameOver()) return;
+        // Only allow if game isn't over
+        if (game.current.isGameOver()) return;
+
+        // If AI mode, only allow white's turn
+        if (gameMode === 'ai' && game.current.turn() !== 'w') return;
 
         if (!moveFrom) {
             // Clicked a square to start move
             const piece = game.current.get(square);
-            if (piece && piece.color === 'w') {
+
+            // Check if piece belongs to current turn
+            if (piece && piece.color === game.current.turn()) {
                 setMoveFrom(square);
 
                 // Get valid moves for this piece
@@ -166,9 +173,11 @@ export default function ChessGame({ difficulty = "Easy" }) {
             const move = onDrop(moveFrom, square);
 
             if (!move) {
-                // If invalid move (e.g. clicked another white piece), select that instead
+                // If invalid move (e.g. clicked another piece of same color), select that instead
                 const piece = game.current.get(square);
-                if (piece && piece.color === 'w') {
+
+                // Allow switching selection to any piece of current turn's color
+                if (piece && piece.color === game.current.turn()) {
                     setMoveFrom(square);
 
                     // Recalculate options for new piece
@@ -259,7 +268,23 @@ export default function ChessGame({ difficulty = "Easy" }) {
                 }}
             >
                 <div className="flex justify-between items-center pb-4 border-b border-white/10">
-                    <h2 className="text-2xl font-bold text-white tracking-tight">Chess Game</h2>
+                    <div>
+                        <h2 className="text-2xl font-bold text-white tracking-tight">Chess Game</h2>
+                        <div className="flex gap-2 mt-2">
+                            <button
+                                onClick={() => { setGameMode('ai'); resetGame(); }}
+                                className={`text-[10px] uppercase font-bold tracking-wider px-2 py-1 rounded transition-colors ${gameMode === 'ai' ? 'bg-neon-green text-black' : 'bg-white/10 text-gray-400 hover:text-white'}`}
+                            >
+                                vs CPU
+                            </button>
+                            <button
+                                onClick={() => { setGameMode('friend'); resetGame(); }}
+                                className={`text-[10px] uppercase font-bold tracking-wider px-2 py-1 rounded transition-colors ${gameMode === 'friend' ? 'bg-neon-blue text-black' : 'bg-white/10 text-gray-400 hover:text-white'}`}
+                            >
+                                Pass & Play
+                            </button>
+                        </div>
+                    </div>
                     <div className="flex gap-2">
                         <button
                             onClick={resetGame}
