@@ -52,7 +52,7 @@ const PieceIcons = {
     ),
     p: (
       <svg viewBox="0 0 45 45" className="w-full h-full fill-white stroke-black stroke-[1.5]">
-        <path d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z" stroke="#000" strokeWidth="1.5" fill="#fff"/>
+        <path d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z" stroke="#000" strokeWidth="1.5" fill="#fff" />
       </svg>
     )
   },
@@ -68,7 +68,7 @@ const PieceIcons = {
       </svg>
     ),
     q: (
-        <svg viewBox="0 0 45 45" className="w-full h-full fill-black stroke-white stroke-[1.5]">
+      <svg viewBox="0 0 45 45" className="w-full h-full fill-black stroke-white stroke-[1.5]">
         <g fill="#000" fillRule="evenodd" stroke="#000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <g stroke="none">
             <circle cx="6" cy="12" r="2.75" />
@@ -112,7 +112,7 @@ const PieceIcons = {
     ),
     p: (
       <svg viewBox="0 0 45 45" className="w-full h-full fill-black stroke-white stroke-[1.5]">
-        <path d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z" stroke="#fff" strokeWidth="1.5" fill="#000"/>
+        <path d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z" stroke="#fff" strokeWidth="1.5" fill="#000" />
       </svg>
     )
   }
@@ -135,76 +135,76 @@ const SimpleChessboard = ({ position, onSquareClick, boardWidth = 400 }) => {
     // Basic click handling to visualize selection before passing up
     if (selectedSquare === square) {
       setSelectedSquare(null);
-      if(onSquareClick) onSquareClick(square);
+      if (onSquareClick) onSquareClick(square);
     } else {
       setSelectedSquare(square);
-      if(onSquareClick) onSquareClick(square);
+      if (onSquareClick) onSquareClick(square);
     }
   };
 
   return (
     <div className="relative rounded-lg shadow-2xl bg-slate-900 p-2">
-        <div 
+      <div
         className="grid grid-cols-8 grid-rows-8 rounded overflow-hidden border border-slate-700 bg-slate-800"
-        style={{ 
-            width: '100%',
-            maxWidth: boardWidth,
-            aspectRatio: '1/1',
+        style={{
+          width: '100%',
+          maxWidth: boardWidth,
+          aspectRatio: '1/1',
         }}
-        >
-        {board.map((row, rowIndex) => 
-            row.map((piece, colIndex) => {
-                const square = `${files[colIndex]}${ranks[rowIndex]}`;
-                const isDark = (rowIndex + colIndex) % 2 === 1;
-                
-                // Professional clean colors (Slate theme)
-                const bgClass = isDark 
-                    ? 'bg-[#0F172A]' // Slate-900
-                    : 'bg-[#64748B]'; // Slate-500
-                
-                let content = null;
-                if (piece) {
-                  content = PieceIcons[piece.color][piece.type];
-                }
-    
-                // Highlight selected
-                const isSelected = selectedSquare === square;
-            
-                return (
-                <div
-                    key={square}
-                    onClick={() => handleClick(square)}
-                    className={`relative flex items-center justify-center cursor-pointer ${bgClass}`}
-                    data-square={square}
-                >
-                    {/* Square Overlay for Selection */}
-                    {isSelected && (
-                        <div className="absolute inset-0 bg-yellow-400/50 mix-blend-overlay shadow-[inset_0_0_10px_rgba(250,204,21,0.5)]"></div>
-                    )}
+      >
+        {board.map((row, rowIndex) =>
+          row.map((piece, colIndex) => {
+            const square = `${files[colIndex]}${ranks[rowIndex]}`;
+            const isDark = (rowIndex + colIndex) % 2 === 1;
 
-                    {/* Coordinate labels */}
-                    {colIndex === 0 && (
-                        <span className={`absolute top-0.5 left-1 text-[10px] font-bold select-none ${isDark ? 'text-slate-600' : 'text-slate-300'}`}>
-                            {ranks[rowIndex]}
-                        </span>
-                    )}
-                    {rowIndex === 7 && (
-                        <span className={`absolute bottom-0 right-1 text-[10px] font-bold select-none ${isDark ? 'text-slate-600' : 'text-slate-300'}`}>
-                            {files[colIndex]}
-                        </span>
-                    )}
-                    
-                    {/* Piece Container - NO SCALING */}
-                    {content && (
-                        <div className="relative w-[85%] h-[85%] pointer-events-none z-10 select-none">
-                            {content}
-                        </div>
-                    )}
-                </div>
-                );
-            })
+            // Professional clean colors (Slate theme)
+            const bgClass = isDark
+              ? 'bg-[#334155]' // Slate-700 (Lighter dark square)
+              : 'bg-[#94A3B8]'; // Slate-400 (Darker light square to reduce contrast)
+
+            let content = null;
+            if (piece) {
+              content = PieceIcons[piece.color][piece.type];
+            }
+
+            // Highlight selected
+            const isSelected = selectedSquare === square;
+
+            return (
+              <div
+                key={square}
+                onClick={() => handleClick(square)}
+                className={`relative flex items-center justify-center cursor-pointer ${bgClass}`}
+                data-square={square}
+              >
+                {/* Square Overlay for Selection */}
+                {isSelected && (
+                  <div className="absolute inset-0 bg-yellow-400/50 mix-blend-overlay shadow-[inset_0_0_10px_rgba(250,204,21,0.5)]"></div>
+                )}
+
+                {/* Coordinate labels */}
+                {colIndex === 0 && (
+                  <span className={`absolute top-0.5 left-1 text-[10px] font-bold select-none ${isDark ? 'text-slate-600' : 'text-slate-300'}`}>
+                    {ranks[rowIndex]}
+                  </span>
+                )}
+                {rowIndex === 7 && (
+                  <span className={`absolute bottom-0 right-1 text-[10px] font-bold select-none ${isDark ? 'text-slate-600' : 'text-slate-300'}`}>
+                    {files[colIndex]}
+                  </span>
+                )}
+
+                {/* Piece Container - NO SCALING */}
+                {content && (
+                  <div className="relative w-[85%] h-[85%] pointer-events-none z-10 select-none">
+                    {content}
+                  </div>
+                )}
+              </div>
+            );
+          })
         )}
-        </div>
+      </div>
     </div>
   );
 };

@@ -73,8 +73,8 @@ const Navbar = () => {
                             <p className="text-sm font-bold text-white leading-none">Hikaru N.</p>
                         </div>
                         <div className="relative cursor-pointer group">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-neon-green to-neon-blue p-[2px] shadow-[0_0_15px_rgba(0,255,163,0.3)] group-hover:shadow-[0_0_25px_rgba(0,255,163,0.5)] transition-shadow">
-                                <div className="w-full h-full rounded-full bg-midnight flex items-center justify-center overflow-hidden">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-neon-green to-neon-blue p-[3px] shadow-[0_4px_0_rgba(0,0,0,0.5)] group-hover:shadow-[0_6px_0_rgba(0,0,0,0.5)] group-hover:-translate-y-0.5 transition-all border-2 border-black">
+                                <div className="w-full h-full rounded-full bg-midnight flex items-center justify-center overflow-hidden border-2 border-white/20">
                                     <User className="text-white w-5 h-5" />
                                 </div>
                             </div>

@@ -2,13 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 // import { Chessboard } from 'react-chessboard'; // BROKEN LIBRARY
 import SimpleChessboard from './SimpleChessboard';
 import { Chess } from 'chess.js';
-import { RotateCcw } from 'lucide-react';
+import { RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
 import Engine from './Engine';
 
 export default function ChessGame({ difficulty = "Easy" }) {
     // USE REF: Keeps the game instance stable across renders.
     const game = useRef(new Chess());
-    
+
     // FIX: Lazy init to avoid spawning workers on every render
     const engine = useRef(null);
     if (!engine.current) {
@@ -23,6 +23,7 @@ export default function ChessGame({ difficulty = "Easy" }) {
     const [lastError, setLastError] = useState(null); // Debug state
 
     const [moveFrom, setMoveFrom] = useState('');
+    const [isFenCollapsed, setIsFenCollapsed] = useState(true);
 
     // Resize handler
     useEffect(() => {
@@ -148,7 +149,7 @@ export default function ChessGame({ difficulty = "Easy" }) {
         } else {
             // Clicked a target square
             const move = onDrop(moveFrom, square);
-            
+
             if (!move) {
                 // If invalid move (e.g. clicked another white piece), select that instead
                 const piece = game.current.get(square);
@@ -160,7 +161,7 @@ export default function ChessGame({ difficulty = "Easy" }) {
                     return;
                 }
             }
-            
+
             // Cleanup selection
             setMoveFrom('');
             setOptionSquares({});
@@ -189,7 +190,7 @@ export default function ChessGame({ difficulty = "Easy" }) {
     if (isCheckmate) status = `Game over, ${currentTurn} is in checkmate.`;
     else if (isDraw) status = 'Game over, drawn position.';
     else if (isCheck) status = `${currentTurn} to move (Check!)`;
-    
+
     if (game.current.turn() === 'b' && !game.current.isGameOver()) {
         status = "AI is thinking...";
     }
@@ -251,19 +252,35 @@ export default function ChessGame({ difficulty = "Easy" }) {
                         </div>
                     </div>
 
-                    {/* FEN Display */}
-                    <div className="bg-black/40 p-4 rounded-lg border border-white/5">
-                        <p className="text-xs uppercase tracking-wider text-gray-500 mb-2">FEN</p>
-                        <div className="font-mono text-xs text-gray-400 break-all leading-relaxed select-all">
-                            {fen}
-                        </div>
-                    </div>
-
-                    {/* PGN History */}
-                    <div className="bg-black/40 p-4 rounded-lg border border-white/5 flex flex-col h-48">
+                    {/* Move History */}
+                    <div className="bg-black/40 p-4 rounded-lg border border-white/5 flex flex-col h-64">
                         <p className="text-xs uppercase tracking-wider text-gray-500 mb-2">Move History</p>
-                        <div className="flex-1 overflow-y-auto font-mono text-sm text-gray-300 leading-relaxed pr-2 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
-                            {game.current.pgn() || <span className="text-gray-600 italic">No moves yet.</span>}
+                        <div className="flex-1 overflow-y-auto font-mono text-sm leading-relaxed pr-2 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
+                            {game.current.history().length === 0 ? (
+                                <span className="text-gray-600 italic">No moves yet.</span>
+                            ) : (
+                                <div className="grid grid-cols-[3rem_1fr_1fr] gap-y-1">
+                                    {/* History logic to pair white/black moves */}
+                                    {(() => {
+                                        const history = game.current.history();
+                                        const pairs = [];
+                                        for (let i = 0; i < history.length; i += 2) {
+                                            pairs.push({
+                                                moveNum: Math.floor(i / 2) + 1,
+                                                white: history[i],
+                                                black: history[i + 1] || ''
+                                            });
+                                        }
+                                        return pairs.map((pair, idx) => (
+                                            <React.Fragment key={idx}>
+                                                <div className="text-gray-500 text-right pr-4">{pair.moveNum}.</div>
+                                                <div className="text-white font-medium">{pair.white}</div>
+                                                <div className="text-gray-400">{pair.black}</div>
+                                            </React.Fragment>
+                                        ));
+                                    })()}
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -283,7 +300,24 @@ export default function ChessGame({ difficulty = "Easy" }) {
                         </p>
                     </div>
 
+                    {/* Collapsible FEN Display */}
+                    <div className="border-t border-white/5 pt-2">
+                        <button
+                            onClick={() => setIsFenCollapsed(!isFenCollapsed)}
+                            className="flex items-center gap-2 text-xs uppercase tracking-wider text-gray-500 hover:text-white transition-colors w-full"
+                        >
+                            {isFenCollapsed ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />}
+                            FEN String
+                        </button>
 
+                        {!isFenCollapsed && (
+                            <div className="mt-2 bg-black/40 p-3 rounded border border-white/5">
+                                <div className="font-mono text-[10px] text-gray-400 break-all select-all">
+                                    {fen}
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

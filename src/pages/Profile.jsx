@@ -42,10 +42,10 @@ const Profile = () => {
     return (
         <div className="max-w-6xl mx-auto pb-12">
             <div className="flex flex-col md:flex-row items-center gap-8 mb-12">
-                <div className="w-32 h-32 rounded-full p-1 bg-gradient-to-br from-neon-green to-neon-blue">
-                    <div className="w-full h-full rounded-full bg-midnight flex items-center justify-center overflow-hidden border-4 border-midnight">
+                <div className="w-32 h-32 rounded-full p-2 bg-gradient-to-br from-neon-green to-neon-blue shadow-[0_8px_0_rgba(0,0,0,0.5)] border-4 border-black transform transition-transform hover:-translate-y-1">
+                    <div className="w-full h-full rounded-full bg-midnight flex items-center justify-center overflow-hidden border-4 border-white/20">
                         {/* Placeholder Avatar */}
-                        <span className="text-4xl">👤</span>
+                        <span className="text-5xl filter drop-shadow-md">👤</span>
                     </div>
                 </div>
                 <div className="text-center md:text-left">

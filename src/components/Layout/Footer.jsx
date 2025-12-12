@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
     return (
@@ -20,18 +21,18 @@ const Footer = () => {
                     <div>
                         <h3 className="font-bold text-white mb-4">Play</h3>
                         <ul className="space-y-2 text-sm text-gray-400">
-                            <li><a href="#" className="hover:text-neon-green transition-colors">Play Online</a></li>
-                            <li><a href="#" className="hover:text-neon-green transition-colors">Computer</a></li>
-                            <li><a href="#" className="hover:text-neon-green transition-colors">Tournaments</a></li>
+                            <li><Link to="/play" className="hover:text-neon-green transition-colors">Play Online</Link></li>
+                            <li><Link to="/play" className="hover:text-neon-green transition-colors">Computer</Link></li>
+                            <li><Link to="/tournaments" className="hover:text-neon-green transition-colors">Tournaments</Link></li>
                         </ul>
                     </div>
 
                     <div>
                         <h3 className="font-bold text-white mb-4">Learn</h3>
                         <ul className="space-y-2 text-sm text-gray-400">
-                            <li><a href="#" className="hover:text-neon-green transition-colors">Chess Basics</a></li>
-                            <li><a href="#" className="hover:text-neon-green transition-colors">Strategy</a></li>
-                            <li><a href="#" className="hover:text-neon-green transition-colors">Endgames</a></li>
+                            <li><Link to="/learn" className="hover:text-neon-green transition-colors">Chess Basics</Link></li>
+                            <li><Link to="/learn" className="hover:text-neon-green transition-colors">Strategy</Link></li>
+                            <li><Link to="/learn" className="hover:text-neon-green transition-colors">Endgames</Link></li>
                         </ul>
                     </div>
 

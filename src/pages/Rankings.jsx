@@ -41,7 +41,7 @@ const Rankings = () => {
                                     <span className={`font-bold ${p.rank <= 3 ? 'text-yellow-500' : 'text-gray-500'}`}>#{p.rank}</span>
                                 </td>
                                 <td className="px-6 py-4 font-bold text-white flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-gray-700" /> {/* Placeholder avatar */}
+                                    <div className="w-8 h-8 rounded-full bg-gray-700 border-2 border-black shadow-[0_2px_0_rgba(0,0,0,0.5)]" /> {/* Placeholder avatar */}
                                     {p.name}
                                 </td>
                                 <td className="px-6 py-4 text-gray-400">{p.country}</td>

@@ -72,8 +72,8 @@ const Puzzles = () => {
                         <Chessboard
                             position={game.fen()}
                             onPieceDrop={onDrop}
-                            customDarkSquareStyle={{ backgroundColor: '#0D0F14' }}
-                            customLightSquareStyle={{ backgroundColor: '#1f2937' }}
+                            customDarkSquareStyle={{ backgroundColor: '#334155' }}
+                            customLightSquareStyle={{ backgroundColor: '#94A3B8' }}
                         />
                     </div>
                 </div>
