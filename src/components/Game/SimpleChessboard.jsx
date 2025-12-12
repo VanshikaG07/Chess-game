@@ -43,10 +43,11 @@ const PieceIcons = {
     ),
     n: (
       <svg viewBox="0 0 45 45" className="w-full h-full fill-white stroke-black stroke-[1.5]">
-        <g fill="#fff" fillRule="evenodd" stroke="#000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M22 10c10.5 1 16.5 8 16 29H15c8-9 10-18.5 7-29z" strokeLinecap="butt" />
-          <path d="M24 18c.38 2.32-.46 4.76-3 7 0 0-1.5 1-2.5-.5-1.5-2.5-.5-4.5 0-5.5 1.5-1.5 3.5 1 5.5-1zM9.5 25.5A4.5 4.5 0 1 1 15 25.5 4.5 4.5 0 1 1 9.5 25.5z" />
-          <path d="M15 15.5c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z" fill="#000" stroke="none" />
+        <g fill="none" fillRule="evenodd" stroke="#000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M 22,10 C 32.5,11 38.5,18 38,39 L 15,39 C 15,30 25,32.5 23,18" strokeLinecap="butt" />
+          <path d="M 24,18 C 24.38,20.91 18.45,25.37 16,27 C 13,29 13.18,31.34 11,31 C 9.958,30.06 12.41,27.96 11,28 C 10,28 11.19,29.23 10,30 C 9,30 5.997,31 6,26 C 6,24 12,14 12,14 C 12,14 13.89,12.1 14,10.5 C 13.27,9.506 13.5,8.5 13.5,7.5 C 14.17,5.2 11.5,2 15,2 C 18,2 24,15 24,15" strokeLinecap="butt" />
+          <path d="M 9.5 25.5 A 0.5 0.5 0 1 1 8.5,25.5 A 0.5 0.5 0 1 1 9.5 25.5 z" fill="#000" stroke="none" />
+          <path d="M 15 15.5 A 0.5 1.5 0 1 1 14,15.5 A 0.5 1.5 0 1 1 15 15.5 z" transform="matrix(0.866,0.5,-0.5,0.866,9.693,-5.173)" fill="#000" stroke="none" />
         </g>
       </svg>
     ),
@@ -104,9 +105,10 @@ const PieceIcons = {
     n: (
       <svg viewBox="0 0 45 45" className="w-full h-full fill-black stroke-white stroke-[1.5]">
         <g fill="#000" fillRule="evenodd" stroke="#000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M22 10c10.5 1 16.5 8 16 29H15c8-9 10-18.5 7-29z" stroke="#fff" strokeLinecap="butt" />
-          <path d="M24 18c.38 2.32-.46 4.76-3 7 0 0-1.5 1-2.5-.5-1.5-2.5-.5-4.5 0-5.5 1.5-1.5 3.5 1 5.5-1zM9.5 25.5A4.5 4.5 0 1 1 15 25.5 4.5 4.5 0 1 1 9.5 25.5z" stroke="#fff" />
-          <path d="M15 15.5c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z" fill="#fff" stroke="none" />
+          <path d="M 22,10 C 32.5,11 38.5,18 38,39 L 15,39 C 15,30 25,32.5 23,18" stroke="#fff" strokeLinecap="butt" />
+          <path d="M 24,18 C 24.38,20.91 18.45,25.37 16,27 C 13,29 13.18,31.34 11,31 C 9.958,30.06 12.41,27.96 11,28 C 10,28 11.19,29.23 10,30 C 9,30 5.997,31 6,26 C 6,24 12,14 12,14 C 12,14 13.89,12.1 14,10.5 C 13.27,9.506 13.5,8.5 13.5,7.5 C 14.17,5.2 11.5,2 15,2 C 18,2 24,15 24,15" stroke="#fff" strokeLinecap="butt" />
+          <path d="M 9.5 25.5 A 0.5 0.5 0 1 1 8.5,25.5 A 0.5 0.5 0 1 1 9.5 25.5 z" fill="#fff" stroke="none" />
+          <path d="M 15 15.5 A 0.5 1.5 0 1 1 14,15.5 A 0.5 1.5 0 1 1 15 15.5 z" transform="matrix(0.866,0.5,-0.5,0.866,9.693,-5.173)" fill="#fff" stroke="none" />
         </g>
       </svg>
     ),
@@ -143,9 +145,9 @@ const SimpleChessboard = ({ position, onSquareClick, boardWidth = 400, customSqu
   };
 
   return (
-    <div className="relative rounded-lg shadow-2xl bg-slate-900 p-2">
+    <div className="relative rounded-lg shadow-2xl bg-black p-2">
       <div
-        className="grid grid-cols-8 grid-rows-8 rounded overflow-hidden border border-slate-700 bg-slate-800"
+        className="grid grid-cols-8 grid-rows-8 rounded overflow-hidden border border-white/10 bg-black"
         style={{
           width: '100%',
           maxWidth: boardWidth,
@@ -157,10 +159,10 @@ const SimpleChessboard = ({ position, onSquareClick, boardWidth = 400, customSqu
             const square = `${files[colIndex]}${ranks[rowIndex]}`;
             const isDark = (rowIndex + colIndex) % 2 === 1;
 
-            // Professional clean colors (Slate theme)
+            // Neon Theme Colors
             const bgClass = isDark
-              ? 'bg-[#334155]' // Slate-700 (Lighter dark square)
-              : 'bg-[#94A3B8]'; // Slate-400 (Darker light square to reduce contrast)
+              ? 'bg-[#0b0f19] border border-white/5' // Deep Midnight + Grid
+              : 'bg-[#1f2937] border border-white/5'; // Dark Blue-Grey + Grid
 
             let content = null;
             if (piece) {
