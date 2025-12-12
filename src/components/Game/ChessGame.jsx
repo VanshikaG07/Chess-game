@@ -142,9 +142,24 @@ export default function ChessGame({ difficulty = "Easy" }) {
             const piece = game.current.get(square);
             if (piece && piece.color === 'w') {
                 setMoveFrom(square);
-                setOptionSquares({
-                    [square]: { background: 'rgba(0, 255, 163, 0.4)' }
+
+                // Get valid moves for this piece
+                const moves = game.current.moves({ square, verbose: true });
+                const newOptionSquares = {};
+
+                // Highlight selected square
+                newOptionSquares[square] = { background: 'rgba(0, 255, 163, 0.4)' };
+
+                // Highlight validity moves
+                moves.forEach((move) => {
+                    newOptionSquares[move.to] = {
+                        background: 'radial-gradient(circle, rgba(0, 255, 163, 0.4) 10%, transparent 70%)',
+                        borderRadius: '50%',
+                        boxShadow: '0 0 5px rgba(0, 255, 163, 0.5)'
+                    };
                 });
+
+                setOptionSquares(newOptionSquares);
             }
         } else {
             // Clicked a target square
@@ -155,9 +170,22 @@ export default function ChessGame({ difficulty = "Easy" }) {
                 const piece = game.current.get(square);
                 if (piece && piece.color === 'w') {
                     setMoveFrom(square);
-                    setOptionSquares({
-                        [square]: { background: 'rgba(0, 255, 163, 0.4)' }
+
+                    // Recalculate options for new piece
+                    const moves = game.current.moves({ square, verbose: true });
+                    const newOptionSquares = {};
+
+                    newOptionSquares[square] = { background: 'rgba(0, 255, 163, 0.4)' };
+
+                    moves.forEach((move) => {
+                        newOptionSquares[move.to] = {
+                            background: 'radial-gradient(circle, rgba(0, 255, 163, 0.4) 10%, transparent 70%)',
+                            borderRadius: '50%',
+                            boxShadow: '0 0 5px rgba(0, 255, 163, 0.5)'
+                        };
                     });
+
+                    setOptionSquares(newOptionSquares);
                     return;
                 }
             }
@@ -216,6 +244,7 @@ export default function ChessGame({ difficulty = "Easy" }) {
                         position={fen}
                         onSquareClick={onSquareClick}
                         boardWidth={boardWidth}
+                        customSquareStyles={optionSquares}
                     />
                 </div>
             </div>

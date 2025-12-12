@@ -118,7 +118,7 @@ const PieceIcons = {
   }
 };
 
-const SimpleChessboard = ({ position, onSquareClick, boardWidth = 400 }) => {
+const SimpleChessboard = ({ position, onSquareClick, boardWidth = 400, customSquareStyles = {} }) => {
   // Parse FEN or use chess.js to get board array
   // If position is a FEN string, we can use a temporary Chess instance to parse it easy
   const board = React.useMemo(() => {
@@ -170,11 +170,15 @@ const SimpleChessboard = ({ position, onSquareClick, boardWidth = 400 }) => {
             // Highlight selected
             const isSelected = selectedSquare === square;
 
+            // Custom styles (e.g. move hints)
+            const customStyle = customSquareStyles[square] || {};
+
             return (
               <div
                 key={square}
                 onClick={() => handleClick(square)}
                 className={`relative flex items-center justify-center cursor-pointer ${bgClass}`}
+                style={customStyle}
                 data-square={square}
               >
                 {/* Square Overlay for Selection */}
