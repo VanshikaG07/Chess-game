@@ -94,8 +94,8 @@ const Puzzles = () => {
                             position={game.fen()}
                             onPieceDrop={onDrop}
                             customSquareStyles={hintSquares}
-                            customDarkSquareStyle={{ backgroundColor: '#0b0f19' }}
-                            customLightSquareStyle={{ backgroundColor: '#1f2937' }}
+                            customDarkSquareStyle={{ backgroundColor: '#334155' }}
+                            customLightSquareStyle={{ backgroundColor: '#2dd4bf' }}
                         />
                     </div>
                 </div>
