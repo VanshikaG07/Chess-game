@@ -67,8 +67,8 @@ const LessonView = ({ lesson, onBack }) => {
                             <Chessboard
                                 position={lesson.steps[step].fen}
                                 arePiecesDraggable={false}
-                                customDarkSquareStyle={{ backgroundColor: '#0D0F14' }}
-                                customLightSquareStyle={{ backgroundColor: '#1f2937' }}
+                                customDarkSquareStyle={{ backgroundColor: '#334155' }}
+                                customLightSquareStyle={{ backgroundColor: '#94A3B8' }}
                             />
                         </div>
                         <p className="mt-6 text-center text-white font-medium italic">

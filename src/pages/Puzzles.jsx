@@ -15,6 +15,7 @@ const Puzzles = () => {
     const [game, setGame] = useState(new Chess(initialFen));
     const [status, setStatus] = useState('idle'); // idle, success, failure
     const [streak, setStreak] = useState(0);
+    const [hintSquares, setHintSquares] = useState({});
 
     function onDrop(sourceSquare, targetSquare) {
         if (status === 'success') return false;
@@ -34,10 +35,12 @@ const Puzzles = () => {
 
             setStatus('success');
             setStreak(s => s + 1);
+            setHintSquares({}); // Clear hint on success
             return true;
         } else {
             setStatus('failure');
             setStreak(0);
+            setHintSquares({}); // Clear hint on failure too
             return false;
         }
     }
@@ -45,6 +48,24 @@ const Puzzles = () => {
     function nextPuzzle() {
         setGame(new Chess(initialFen)); // Reset for demo
         setStatus('idle');
+        setHintSquares({}); // Clear hint
+    }
+
+    function handleHint() {
+        // For this demo, we know the solution move is Qxf7#.
+        // In a real app, we'd parse the solution line.
+        // We'll highlight the source square of the solution move (e.g., 'h5' for Queen on h5)
+
+        // Find the move that leads to the solution (or just parse the SAN if we know it)
+        const moves = game.moves({ verbose: true });
+        const bestMove = moves.find(m => m.san === solutionMove);
+
+        if (bestMove) {
+            setHintSquares({
+                [bestMove.from]: { backgroundColor: 'rgba(255, 255, 0, 0.4)' },
+                [bestMove.to]: { backgroundColor: 'rgba(255, 255, 0, 0.4)' }
+            });
+        }
     }
 
     return (
@@ -72,6 +93,7 @@ const Puzzles = () => {
                         <Chessboard
                             position={game.fen()}
                             onPieceDrop={onDrop}
+                            customSquareStyles={hintSquares}
                             customDarkSquareStyle={{ backgroundColor: '#334155' }}
                             customLightSquareStyle={{ backgroundColor: '#94A3B8' }}
                         />
@@ -93,7 +115,7 @@ const Puzzles = () => {
                         {status === 'success' ? (
                             <Button onClick={nextPuzzle} icon={ArrowRight} className="bg-neon-green text-midnight">Next Puzzle</Button>
                         ) : (
-                            <Button variant="secondary" icon={HelpCircle} disabled={status === 'success'}>Get Hint</Button>
+                            <Button variant="secondary" icon={HelpCircle} onClick={handleHint} disabled={status === 'success'}>Get Hint</Button>
                         )}
                     </div>
                 </Card>
