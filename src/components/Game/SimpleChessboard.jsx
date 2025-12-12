@@ -159,10 +159,10 @@ const SimpleChessboard = ({ position, onSquareClick, boardWidth = 400, customSqu
             const square = `${files[colIndex]}${ranks[rowIndex]}`;
             const isDark = (rowIndex + colIndex) % 2 === 1;
 
-            // Neon Theme Colors (High Contrast)
+            // Professional clean colors (Slate theme)
             const bgClass = isDark
-              ? 'bg-[#334155] border border-white/5' // Slate-700 (Visible Dark)
-              : 'bg-[#2dd4bf] border border-white/5'; // Teal-400 (Bright Neon)
+              ? 'bg-[#334155]' // Slate-700 (Lighter dark square)
+              : 'bg-[#94A3B8]'; // Slate-400 (Darker light square to reduce contrast)
 
             let content = null;
             if (piece) {

@@ -95,7 +95,7 @@ const Puzzles = () => {
                             onPieceDrop={onDrop}
                             customSquareStyles={hintSquares}
                             customDarkSquareStyle={{ backgroundColor: '#334155' }}
-                            customLightSquareStyle={{ backgroundColor: '#2dd4bf' }}
+                            customLightSquareStyle={{ backgroundColor: '#94A3B8' }}
                         />
                     </div>
                 </div>
