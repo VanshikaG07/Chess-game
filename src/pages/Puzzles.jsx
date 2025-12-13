@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Chess } from 'chess.js';
-import { Chessboard } from 'react-chessboard';
+import SimpleChessboard from '../components/Game/SimpleChessboard';
 import Card from '../components/UI/Card';
 import Button from '../components/UI/Button';
 import { Check, X, HelpCircle, ArrowRight } from 'lucide-react';
@@ -17,46 +17,109 @@ const Puzzles = () => {
     const [streak, setStreak] = useState(0);
     const [hintSquares, setHintSquares] = useState({});
 
-    function onDrop(sourceSquare, targetSquare) {
-        if (status === 'success') return false;
+    // Interaction state
+    const [moveFrom, setMoveFrom] = useState(null);
+    const [optionSquares, setOptionSquares] = useState({});
+    const [boardWidth, setBoardWidth] = useState(500);
 
-        const moves = game.moves({ verbose: true });
-        const move = moves.find(m => m.from === sourceSquare && m.to === targetSquare);
+    // Resize handler for responsive board
+    useEffect(() => {
+        function handleResize() {
+            const width = window.innerWidth;
+            // Adjust based on column size (approximate)
+            if (width < 640) setBoardWidth(width - 48);
+            else if (width < 1024) setBoardWidth(400); // 3 cols in grid
+            else setBoardWidth(500);
+        }
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
-        if (!move) return false;
+    function onSquareClick(square) {
+        if (status === 'success') return;
 
-        // Mock puzzle validation: check if move is mate (since Fen is setup for mate in 1)
-        // In a real app, we check against a solution string/move
+        // Reset hint if user interacts
+        if (Object.keys(hintSquares).length > 0) setHintSquares({});
+
+        // Use a new game instance to check moves (avoid mutating state directly)
+        const gameCopy = new Chess(game.fen());
+
+        // If clicking the already selected square, unselect
+        if (moveFrom === square) {
+            setMoveFrom(null);
+            setOptionSquares({});
+            return;
+        }
+
+        // If a square is already selected, try to move to the new square
+        if (moveFrom) {
+            const moves = gameCopy.moves({ verbose: true });
+            const move = moves.find(m => m.from === moveFrom && m.to === square);
+
+            if (move) {
+                // Valid move found, execute it
+                handleMoveAttempt(move);
+                setMoveFrom(null);
+                setOptionSquares({});
+                return;
+            }
+        }
+
+        // If no move was made (or no square selected yet), try to select the new square
+        const piece = gameCopy.get(square);
+        if (piece && piece.color === gameCopy.turn()) {
+            setMoveFrom(square);
+
+            // Highlight valid moves
+            const moves = gameCopy.moves({ square, verbose: true });
+            const newOptionSquares = {
+                [square]: { background: 'rgba(0, 255, 163, 0.4)' }
+            };
+
+            moves.forEach((m) => {
+                newOptionSquares[m.to] = {
+                    background: 'radial-gradient(circle, rgba(0, 255, 163, 0.4) 10%, transparent 70%)',
+                    borderRadius: '50%',
+                    boxShadow: '0 0 5px rgba(0, 255, 163, 0.5)'
+                };
+            });
+
+            setOptionSquares(newOptionSquares);
+        } else {
+            // Clicked empty square or opponent piece without selection
+            setMoveFrom(null);
+            setOptionSquares({});
+        }
+    }
+
+    function handleMoveAttempt(move) {
+        // Check solution
         if (move.san === solutionMove) {
-            // For puzzles starting from a specific FEN without history, we can initialize from FEN.
             const newGame = new Chess(game.fen());
             newGame.move(move.san);
             setGame(newGame);
 
             setStatus('success');
             setStreak(s => s + 1);
-            setHintSquares({}); // Clear hint on success
-            return true;
         } else {
             setStatus('failure');
             setStreak(0);
-            setHintSquares({}); // Clear hint on failure too
-            return false;
+
+            // We do NOT update the board on failure in puzzles, typically users retry.
+            // But we should show the "Incorrect" feedback which is handled by 'status'.
         }
     }
 
     function nextPuzzle() {
         setGame(new Chess(initialFen)); // Reset for demo
         setStatus('idle');
-        setHintSquares({}); // Clear hint
+        setHintSquares({});
+        setMoveFrom(null);
+        setOptionSquares({});
     }
 
     function handleHint() {
-        // For this demo, we know the solution move is Qxf7#.
-        // In a real app, we'd parse the solution line.
-        // We'll highlight the source square of the solution move (e.g., 'h5' for Queen on h5)
-
-        // Find the move that leads to the solution (or just parse the SAN if we know it)
         const moves = game.moves({ verbose: true });
         const bestMove = moves.find(m => m.san === solutionMove);
 
@@ -69,7 +132,7 @@ const Puzzles = () => {
     }
 
     return (
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-12">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-12 pt-10">
             <div className="lg:col-span-3">
                 <div className="relative">
                     {/* Feedback Overlay */}
@@ -89,13 +152,12 @@ const Puzzles = () => {
                         )}
                     </AnimatePresence>
 
-                    <div className="glass-panel p-2">
-                        <Chessboard
+                    <div className="glass-panel p-4 flex justify-center bg-black/50">
+                        <SimpleChessboard
                             position={game.fen()}
-                            onPieceDrop={onDrop}
-                            customSquareStyles={hintSquares}
-                            customDarkSquareStyle={{ backgroundColor: '#334155' }}
-                            customLightSquareStyle={{ backgroundColor: '#94A3B8' }}
+                            onSquareClick={onSquareClick}
+                            boardWidth={boardWidth}
+                            customSquareStyles={{ ...hintSquares, ...optionSquares }}
                         />
                     </div>
                 </div>
@@ -115,7 +177,12 @@ const Puzzles = () => {
                         {status === 'success' ? (
                             <Button onClick={nextPuzzle} icon={ArrowRight} className="bg-neon-green text-midnight">Next Puzzle</Button>
                         ) : (
-                            <Button variant="secondary" icon={HelpCircle} onClick={handleHint} disabled={status === 'success'}>Get Hint</Button>
+                            <div className="flex gap-2">
+                                <Button className="flex-1" variant="secondary" icon={HelpCircle} onClick={handleHint} disabled={status === 'success'}>Get Hint</Button>
+                                {status === 'failure' && (
+                                    <Button className="flex-1 bg-white/10 text-white hover:bg-white/20" onClick={() => setStatus('idle')}>Try Again</Button>
+                                )}
+                            </div>
                         )}
                     </div>
                 </Card>
