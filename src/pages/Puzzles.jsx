@@ -27,30 +27,22 @@ const Puzzles = () => {
         },
         {
             id: 3,
-            fen: "rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR b KQkq - 1 2",
+            fen: "rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 2",
             solution: "Qh4#",
             title: "Fool's Mate",
             hint: "The fastest checkmate possible."
         },
         {
             id: 4,
-            fen: "r5rk/5Npp/8/8/8/8/8/7K w - - 0 1",
+            fen: "r5rk/7p/7N/8/8/8/8/7K w - - 0 1",
             solution: "Nf7#",
             title: "Smothered Mate",
             hint: "The King has no escape squares."
         },
         {
             id: 5,
-            fen: "r1bqk2r/pppp1ppp/2n2n2/4p3/1b2P3/3P1N2/PPP1BPPP/RNBQK2R w KQkq - 1 4", // Not a mate, just a check to block. Wait, let's do a mate.
-            // Let's use a simple Queen Mate
-            // FEN: 4k3/4Q3/4K3/8/8/8/8/8 w - - 0 1 (Already mated). 
-            // Mate in 1: K at e8, Q at e6, K at c6??
-            // White to move: K at c6, Q at d6. Black K at a8?
-            // Let's use:
-            fen: "Q7/5p1p/5p1k/8/6P1/5P2/7P/6K1 w - - 0 1", // Queen at a8. Move Qg8#? No...
-            // Simple:
-            fen: "5rk1/5ppp/8/8/8/8/5Q2/6K1 w - - 0 1", // Queen at f2. Move Qf8#
-            solution: "Qf8#",
+            fen: "7k/5Q2/6K1/8/8/8/8/8 w - - 0 1",
+            solution: "Qg7#",
             title: "Queen Mate",
             hint: "Deliver checkmate on the back rank."
         }
