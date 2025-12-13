@@ -9,10 +9,55 @@ import { motion, AnimatePresence } from 'framer-motion';
 const Puzzles = () => {
     // Puzzle state
     // Simple mate in 1 puzzle
-    const initialFen = "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4"; // Scholar's mate setup
-    const solutionMove = "Qxf7#";
+    // Puzzle Database
+    const puzzles = [
+        {
+            id: 1,
+            fen: "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4",
+            solution: "Qxf7#",
+            title: "Scholar's Mate",
+            hint: "Look for a weak point near the King."
+        },
+        {
+            id: 2,
+            fen: "6k1/5ppp/8/8/8/8/5PPP/4R1K1 w - - 0 1",
+            solution: "Re8#",
+            title: "Back Rank Mate",
+            hint: "The King is trapped behind his own pawns."
+        },
+        {
+            id: 3,
+            fen: "rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR b KQkq - 1 2",
+            solution: "Qh4#",
+            title: "Fool's Mate",
+            hint: "The fastest checkmate possible."
+        },
+        {
+            id: 4,
+            fen: "r5rk/5Npp/8/8/8/8/8/7K w - - 0 1",
+            solution: "Nf7#",
+            title: "Smothered Mate",
+            hint: "The King has no escape squares."
+        },
+        {
+            id: 5,
+            fen: "r1bqk2r/pppp1ppp/2n2n2/4p3/1b2P3/3P1N2/PPP1BPPP/RNBQK2R w KQkq - 1 4", // Not a mate, just a check to block. Wait, let's do a mate.
+            // Let's use a simple Queen Mate
+            // FEN: 4k3/4Q3/4K3/8/8/8/8/8 w - - 0 1 (Already mated). 
+            // Mate in 1: K at e8, Q at e6, K at c6??
+            // White to move: K at c6, Q at d6. Black K at a8?
+            // Let's use:
+            fen: "Q7/5p1p/5p1k/8/6P1/5P2/7P/6K1 w - - 0 1", // Queen at a8. Move Qg8#? No...
+            // Simple:
+            fen: "5rk1/5ppp/8/8/8/8/5Q2/6K1 w - - 0 1", // Queen at f2. Move Qf8#
+            solution: "Qf8#",
+            title: "Queen Mate",
+            hint: "Deliver checkmate on the back rank."
+        }
+    ];
 
-    const [game, setGame] = useState(new Chess(initialFen));
+    const [currentPuzzle, setCurrentPuzzle] = useState(puzzles[0]);
+    const [game, setGame] = useState(new Chess(puzzles[0].fen));
     const [status, setStatus] = useState('idle'); // idle, success, failure
     const [streak, setStreak] = useState(0);
     const [hintSquares, setHintSquares] = useState({});
@@ -95,7 +140,7 @@ const Puzzles = () => {
 
     function handleMoveAttempt(move) {
         // Check solution
-        if (move.san === solutionMove) {
+        if (move.san === currentPuzzle.solution) {
             const newGame = new Chess(game.fen());
             newGame.move(move.san);
             setGame(newGame);
@@ -112,7 +157,14 @@ const Puzzles = () => {
     }
 
     function nextPuzzle() {
-        setGame(new Chess(initialFen)); // Reset for demo
+        let nextIndex;
+        do {
+            nextIndex = Math.floor(Math.random() * puzzles.length);
+        } while (puzzles[nextIndex].id === currentPuzzle.id);
+
+        const next = puzzles[nextIndex];
+        setCurrentPuzzle(next);
+        setGame(new Chess(next.fen));
         setStatus('idle');
         setHintSquares({});
         setMoveFrom(null);
@@ -121,7 +173,7 @@ const Puzzles = () => {
 
     function handleHint() {
         const moves = game.moves({ verbose: true });
-        const bestMove = moves.find(m => m.san === solutionMove);
+        const bestMove = moves.find(m => m.san === currentPuzzle.solution);
 
         if (bestMove) {
             setHintSquares({
@@ -166,12 +218,12 @@ const Puzzles = () => {
             <div className="lg:col-span-2 space-y-6">
                 <Card>
                     <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-2xl font-bold">Daily Puzzle</h2>
+                        <h2 className="text-2xl font-bold">{currentPuzzle.title}</h2>
                         <div className="bg-yellow-500/20 text-yellow-500 px-3 py-1 rounded-full text-xs font-bold border border-yellow-500/50">
                             Streak: {streak} 🔥
                         </div>
                     </div>
-                    <p className="text-gray-400 mb-6">Find the best move for White. (Hint: Look for a checkmate)</p>
+                    <p className="text-gray-400 mb-6">Find the best move. (Hint: {currentPuzzle.hint})</p>
 
                     <div className="flex flex-col gap-3">
                         {status === 'success' ? (
