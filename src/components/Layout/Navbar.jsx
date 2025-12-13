@@ -6,6 +6,12 @@ import clsx from 'clsx';
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const [showNotifications, setShowNotifications] = useState(false);
+    const [notifications, setNotifications] = useState([
+        { id: 1, text: "Daily Puzzle is ready! Solve it to keep your streak.", time: "2 min ago", read: false },
+        { id: 2, text: "New tournament 'Neon Blitz' starts in 1 hour.", time: "1 hour ago", read: false },
+        { id: 3, text: "Hikaru N. accepted your friend request.", time: "3 hours ago", read: true },
+    ]);
     const location = useLocation();
 
     const navLinks = [
@@ -59,12 +65,50 @@ const Navbar = () => {
                 {/* Right Actions */}
                 <div className="hidden md:flex items-center space-x-6">
                     {/* Notifications */}
-                    <button className="text-gray-400 hover:text-neon-blue transition-colors relative group outline-none">
-                        <div className="p-2 rounded-lg group-hover:bg-neon-blue/10 transition-colors">
-                            <Bell className="w-5 h-5" />
-                        </div>
-                        <span className="absolute top-1 right-1 w-2 h-2 bg-neon-pink rounded-full shadow-[0_0_10px_#FF0099]"></span>
-                    </button>
+                    <div className="relative">
+                        <button
+                            onClick={() => setShowNotifications(!showNotifications)}
+                            className="text-gray-400 hover:text-neon-blue transition-colors relative group outline-none"
+                        >
+                            <div className={`p-2 rounded-lg transition-colors ${showNotifications ? 'bg-neon-blue/10 text-neon-blue' : 'group-hover:bg-neon-blue/10'}`}>
+                                <Bell className="w-5 h-5" />
+                            </div>
+                            {notifications.length > 0 && <span className="absolute top-1 right-1 w-2 h-2 bg-neon-pink rounded-full shadow-[0_0_10px_#FF0099] animate-pulse"></span>}
+                        </button>
+
+                        <AnimatePresence>
+                            {showNotifications && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    className="absolute right-0 top-14 w-80 glass-panel border border-white/10 shadow-xl overflow-hidden z-50 bg-[#050511]/95"
+                                >
+                                    <div className="p-4 border-b border-white/5 flex justify-between items-center bg-white/5">
+                                        <h3 className="font-bold text-white text-sm">Notifications</h3>
+                                        <button onClick={() => setNotifications([])} className="text-[10px] text-gray-400 hover:text-neon-pink transition-colors">Clear All</button>
+                                    </div>
+                                    <div className="max-h-64 overflow-y-auto">
+                                        {notifications.length === 0 ? (
+                                            <div className="p-8 text-center text-gray-500 text-xs">
+                                                No new notifications
+                                            </div>
+                                        ) : (
+                                            notifications.map((notif) => (
+                                                <div key={notif.id} className="p-4 hover:bg-white/5 transition-colors border-b border-white/5 last:border-0 flex gap-3">
+                                                    <div className={`mt-1 w-2 h-2 rounded-full flex-shrink-0 ${notif.read ? 'bg-gray-600' : 'bg-neon-blue'}`}></div>
+                                                    <div>
+                                                        <p className="text-sm text-gray-200 leading-snug">{notif.text}</p>
+                                                        <p className="text-[10px] text-gray-500 mt-1 font-mono">{notif.time}</p>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
 
                     {/* User Profile */}
                     <div className="flex items-center space-x-3 pl-6 border-l border-white/10">
