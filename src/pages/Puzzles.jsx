@@ -34,7 +34,7 @@ const Puzzles = () => {
         },
         {
             id: 4,
-            fen: "r5rk/7p/7N/8/8/8/8/7K w - - 0 1",
+            fen: "6rk/6pp/7N/8/8/8/8/7K w - - 0 1",
             solution: "Nf7#",
             title: "Smothered Mate",
             hint: "The King has no escape squares."
