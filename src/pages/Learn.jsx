@@ -32,6 +32,17 @@ const LessonCard = ({ title, description, level, locked, onClick }) => (
 const LessonView = ({ lesson, onBack }) => {
     const [step, setStep] = useState(0);
 
+    const activeStep = lesson.steps[step];
+    const customSquareStyles = {};
+    if (activeStep.highlightSquares) {
+        activeStep.highlightSquares.forEach(square => {
+            customSquareStyles[square] = {
+                background: 'radial-gradient(circle, #22c55e 25%, transparent 26%)',
+                borderRadius: '50%'
+            };
+        });
+    }
+
     return (
         <div className="animate-in fade-in duration-500">
             <button onClick={onBack} className="mb-6 text-gray-400 hover:text-white flex items-center gap-2">
@@ -65,14 +76,15 @@ const LessonView = ({ lesson, onBack }) => {
                     <Card className="flex flex-col items-center p-8 bg-black/50">
                         <div className="w-full max-w-[400px]">
                             <Chessboard
-                                position={lesson.steps[step].fen}
+                                position={activeStep.fen}
                                 arePiecesDraggable={false}
+                                customSquareStyles={customSquareStyles}
                                 customDarkSquareStyle={{ backgroundColor: '#334155' }}
                                 customLightSquareStyle={{ backgroundColor: '#94A3B8' }}
                             />
                         </div>
                         <p className="mt-6 text-center text-white font-medium italic">
-                            "{lesson.steps[step].caption}"
+                            "{activeStep.caption}"
                         </p>
                     </Card>
                 </div>
@@ -91,8 +103,8 @@ const Learn = () => {
             level: "Beginner",
             description: "Attack two pieces at once with a Knight or Pawn.",
             steps: [
-                { title: "Identify Targets", text: "Look for two valuable pieces on the same color.", fen: "rnbqkbnr/pppppppp/8/8/4N3/8/PPPPPPPP/RNBQKB1R w KQkq - 0 1", caption: "The white knight is ready to jump." },
-                { title: "The Jump", text: "Move the knight to a square where it attacks both.", fen: "rnbqkbnr/pppppppp/8/8/6N1/5P2/PPPPP1PP/RNBQKB1R b KQkq - 1 1", caption: "Nb6 attacks both Rook and Queen (imaginary scenario)." },
+                { title: "Identify Targets", text: "Look for two valuable pieces on the same color.", fen: "rnbqkbnr/pppppppp/8/8/4N3/8/PPPPPPPP/RNBQKB1R w KQkq - 0 1", caption: "The white knight is ready to jump.", highlightSquares: ['e4', 'f6', 'd6'] },
+                { title: "The Jump", text: "Move the knight to a square where it attacks both.", fen: "rnbqkbnr/pppppppp/8/8/6N1/5P2/PPPPP1PP/RNBQKB1R b KQkq - 1 1", caption: "Nb6 attacks both Rook and Queen (imaginary scenario).", highlightSquares: ['g4', 'f6', 'h6'] },
                 // Note: FENs are dummy for illustration
             ]
         },
@@ -102,8 +114,8 @@ const Learn = () => {
             level: "Intermediate",
             description: "Restrict an enemy piece from moving.",
             steps: [
-                { title: "Absolute Pin", text: "The pinned piece cannot move because it would expose the King.", fen: "rnbqkbnr/pppp1ppp/8/4p3/4P3/2N5/PPPP1PPP/R1BQKBNR b KQkq - 1 2", caption: "The Knight on f6 is pinned by the Bishop." },
-                { title: "Relative Pin", text: "The pinned piece can move, but it would lose material.", fen: "rnbqkbnr/pppp1ppp/8/4p3/4P3/2N5/PPPP1PPP/R1BQKBNR b KQkq - 1 2", caption: "Moving the Knight exposes the Queen." }
+                { title: "Absolute Pin", text: "The pinned piece cannot move because it would expose the King.", fen: "rnbqkbnr/pppp1ppp/8/4p3/4P3/2N5/PPPP1PPP/R1BQKBNR b KQkq - 1 2", caption: "The Knight on f6 is pinned by the Bishop.", highlightSquares: ['f6', 'g5'] },
+                { title: "Relative Pin", text: "The pinned piece can move, but it would lose material.", fen: "rnbqkbnr/pppp1ppp/8/4p3/4P3/2N5/PPPP1PPP/R1BQKBNR b KQkq - 1 2", caption: "Moving the Knight exposes the Queen.", highlightSquares: ['c3', 'd5'] }
             ]
         },
         {
