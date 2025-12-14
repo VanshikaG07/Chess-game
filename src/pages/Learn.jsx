@@ -31,6 +31,12 @@ const LessonCard = ({ title, description, level, locked, onClick }) => (
 
 const LessonView = ({ lesson, onBack }) => {
     const [step, setStep] = useState(0);
+    const [showExplanation, setShowExplanation] = useState(false);
+
+    // Reset explanation visibility when step changes
+    React.useEffect(() => {
+        setShowExplanation(false);
+    }, [step]);
 
     const activeStep = lesson.steps[step];
     const customSquareStyles = {};
@@ -83,9 +89,27 @@ const LessonView = ({ lesson, onBack }) => {
                                 customLightSquareStyle={{ backgroundColor: '#94A3B8' }}
                             />
                         </div>
-                        <p className="mt-6 text-center text-white font-medium italic">
+                        <p className="mt-6 text-center text-white font-medium italic mb-4">
                             "{activeStep.caption}"
                         </p>
+
+                        <button
+                            onClick={() => setShowExplanation(!showExplanation)}
+                            className="flex items-center gap-2 text-neon-green hover:text-white transition-colors text-sm font-bold uppercase tracking-wider border border-neon-green/30 hover:bg-neon-green/10 px-4 py-2 rounded-full"
+                        >
+                            <BookOpen className="w-4 h-4" />
+                            {showExplanation ? "Hide Explanation" : "Explain Move"}
+                        </button>
+
+                        {showExplanation && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="mt-4 p-4 bg-white/5 rounded-lg border border-white/10 text-sm text-gray-300 leading-relaxed"
+                            >
+                                <p><span className="text-neon-green font-bold">Why this move?</span> {activeStep.explanation}</p>
+                            </motion.div>
+                        )}
                     </Card>
                 </div>
             </div>
@@ -103,8 +127,22 @@ const Learn = () => {
             level: "Beginner",
             description: "Attack two pieces at once with a Knight or Pawn.",
             steps: [
-                { title: "Identify Targets", text: "Look for two valuable pieces on the same color.", fen: "rnbqkbnr/pppppppp/8/8/4N3/8/PPPPPPPP/RNBQKB1R w KQkq - 0 1", caption: "The white knight is ready to jump.", highlightSquares: ['e4', 'f6', 'd6'] },
-                { title: "The Jump", text: "Move the knight to a square where it attacks both.", fen: "rnbqkbnr/pppppppp/8/8/6N1/5P2/PPPPP1PP/RNBQKB1R b KQkq - 1 1", caption: "Nb6 attacks both Rook and Queen (imaginary scenario).", highlightSquares: ['g4', 'f6', 'h6'] },
+                {
+                    title: "Identify Targets",
+                    text: "Look for two valuable pieces on the same color.",
+                    fen: "rnbqkbnr/pppppppp/8/8/4N3/8/PPPPPPPP/RNBQKB1R w KQkq - 0 1",
+                    caption: "The white knight is ready to jump.",
+                    highlightSquares: ['e4', 'f6', 'd6'],
+                    explanation: "Knights are excellent for forking because they move in an L-shape, allowing them to attack pieces on different files and ranks simultaneously. Here, the Knight on e4 is looking for targets on squares it can reach."
+                },
+                {
+                    title: "The Jump",
+                    text: "Move the knight to a square where it attacks both.",
+                    fen: "rnbqkbnr/pppppppp/8/8/6N1/5P2/PPPPP1PP/RNBQKB1R b KQkq - 1 1",
+                    caption: "Nb6 attacks both Rook and Queen (imaginary scenario).",
+                    highlightSquares: ['g4', 'f6', 'h6'],
+                    explanation: "By moving to this square, the Knight simultaneously threatens two enemy pieces. This is a powerful tactic because the opponent can usually only save one piece, allowing you to capture the other."
+                },
                 // Note: FENs are dummy for illustration
             ]
         },
@@ -114,8 +152,22 @@ const Learn = () => {
             level: "Intermediate",
             description: "Restrict an enemy piece from moving.",
             steps: [
-                { title: "Absolute Pin", text: "The pinned piece cannot move because it would expose the King.", fen: "rnbqkbnr/pppp1ppp/8/4p3/4P3/2N5/PPPP1PPP/R1BQKBNR b KQkq - 1 2", caption: "The Knight on f6 is pinned by the Bishop.", highlightSquares: ['f6', 'g5'] },
-                { title: "Relative Pin", text: "The pinned piece can move, but it would lose material.", fen: "rnbqkbnr/pppp1ppp/8/4p3/4P3/2N5/PPPP1PPP/R1BQKBNR b KQkq - 1 2", caption: "Moving the Knight exposes the Queen.", highlightSquares: ['c3', 'd5'] }
+                {
+                    title: "Absolute Pin",
+                    text: "The pinned piece cannot move because it would expose the King.",
+                    fen: "rnbqkbnr/pppp1ppp/8/4p3/4P3/2N5/PPPP1PPP/R1BQKBNR b KQkq - 1 2",
+                    caption: "The Knight on f6 is pinned by the Bishop.",
+                    highlightSquares: ['f6', 'g5'],
+                    explanation: "An absolute pin occurs when a piece is shielding the King. Moving the pinned piece would be an illegal move because you cannot put your own King in check."
+                },
+                {
+                    title: "Relative Pin",
+                    text: "The pinned piece can move, but it would lose material.",
+                    fen: "rnbqkbnr/pppp1ppp/8/4p3/4P3/2N5/PPPP1PPP/R1BQKBNR b KQkq - 1 2",
+                    caption: "Moving the Knight exposes the Queen.",
+                    highlightSquares: ['c3', 'd5'],
+                    explanation: "In a relative pin, the piece behind the pinned piece is valuable (like a Queen or Rook), but not the King. Moving the pinned piece is legal, but usually a bad idea because you will lose the more valuable piece behind it."
+                }
             ]
         },
         {
